@@ -6,7 +6,7 @@ import board
 import adafruit_fingerprint
 import serial
 
-uart = serial.Serial("/dev/ttyAMA0", baudrate=57600, timeout=1)
+uart = serial.Serial("/dev/ttyS0", baudrate=57600, timeout=1)
 
 finger = adafruit_fingerprint.Adafruit_Fingerprint(uart)
 
@@ -148,6 +148,22 @@ def get_num():
         except ValueError:
             pass
     return i
+# تابعی برای خواندن فایل و تبدیل به دیکشنری
+def load_fingerprint_data(filename="fingerprints.txt"):
+    fingerprint_dict = {}  # دیکشنری برای نگه‌داری داده‌ها
+    try:
+        with open(filename, "r") as file:
+            for line in file:
+                parts = line.strip().split(maxsplit=1)  # جدا کردن ID و نام
+                if len(parts) == 2:  # اطمینان از اینکه داده‌ها درست باشند
+                    fingerprint_id, name = parts
+                    fingerprint_dict[int(fingerprint_id)] = name  # ذخیره در دیکشنری
+    except FileNotFoundError:
+        print("Error: File not found!")
+    return fingerprint_dict
+
+# بارگذاری نام‌ها از فایل
+fingerprint_names = load_fingerprint_data()
 
 while True:
     print("----------------")
@@ -159,7 +175,13 @@ while True:
     print("d) delete print")
     print("----------------")
     
+    # تابع بررسی اثر انگشت
     if get_fingerprint():
-        print("Detected #", finger.finger_id, "with confidence", finger.confidence)
-    else:
-        print("Finger not found")
+        user_id = finger.finger_id
+        confidence = finger.confidence
+
+        # بررسی اینکه ID در دیکشنری وجود دارد یا نه
+        if user_id in fingerprint_names:
+            print("Detected:", fingerprint_names[user_id], "with confidence", confidence)
+        else:
+            print("Detected unknown fingerprint with confidence", confidence)
