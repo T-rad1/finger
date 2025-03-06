@@ -1,12 +1,10 @@
-# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
-# SPDX-License-Identifier: MIT
 
 import time
 import board
 import adafruit_fingerprint
 import serial
 
-uart = serial.Serial("/dev/ttyS0", baudrate=57600, timeout=1)
+uart = serial.Serial("/dev/ttyAMA0", baudrate=57600, timeout=1)
 
 finger = adafruit_fingerprint.Adafruit_Fingerprint(uart)
 
